@@ -20161,24 +20161,65 @@
 	var Minesweeper = __webpack_require__(171);
 	var Modal = __webpack_require__(172).Modal;
 	
+	var BOMB_COUNT = 10;
+	
 	var Game = React.createClass({
 	  displayName: 'Game',
 	
 	  getInitialState: function () {
-	    var board = new Minesweeper.Board({ gridSize: 10, numBombs: 10 });
-	    return { board: board };
+	    var board = new Minesweeper.Board({ gridSize: 10, numBombs: BOMB_COUNT });
+	    return { board: board, moves: 0, startTimer: null, bombsRemaining: BOMB_COUNT,
+	      leaders: [{ name: "brent", time: "01:21" }, { name: "leslie", time: "00:46" }, { name: "russel", time: "00:21" }] };
+	  },
+	  checkForWinner: function () {
+	    //add new winner to client side leaderboard
+	    var leadersArray = this.state.leaders;
+	
+	    if (this.state.board.won()) {
+	      var timeStringified = this.stringifyTime((new Date() - this.state.startTimer) / 1000);
+	      var newestWinner = { name: "you", time: timeStringified };
+	      leadersArray.push(newestWinner);
+	    }
+	
+	    return leadersArray;
+	  },
+	  stringifyTime: function (time) {
+	    var seconds = parseInt(time % 60);
+	    var minutes = parseInt(time / 60);
+	
+	    var secondsString = seconds < 10 ? "0" + seconds : "" + seconds;
+	    var minutesString = minutes < 10 ? "0" + minutes : "" + minutes;
+	
+	    var clockString = minutesString + ":" + secondsString;
+	
+	    return clockString;
 	  },
 	  updateGame: function (tile, flagged) {
+	    //flagged refers to the users input including Alt
+	
+	    var startTimer = this.state.moves == 0 ? new Date() : this.state.startTimer;
+	    var newMovesState = this.state.moves + 1;
+	    //returns num of flags on current board, must also add in if the move that caused
+	    //this updateGame is a flagged
+	    var totalFlagged = this.state.board.flagTotal();
+	
 	    if (flagged) {
+	      //if tile is already flagged and user is flagging again, it unflags so reduce flag count
+	      totalFlagged = tile.flagged ? totalFlagged - 1 : totalFlagged + 1;
 	      tile.toggleFlag();
 	    } else {
 	      tile.explore();
 	    }
-	    this.setState({ board: this.state.board });
+	    var leaders = this.checkForWinner();
+	    this.setState({ board: this.state.board,
+	      moves: newMovesState,
+	      startTimer: startTimer,
+	      bombsRemaining: BOMB_COUNT - totalFlagged,
+	      leaders: leaders });
 	  },
 	  restartGame: function () {
-	    var board = new Minesweeper.Board({ gridSize: 10, numBombs: 10 });
-	    this.setState({ board: board });
+	    var board = new Minesweeper.Board({ gridSize: 10, numBombs: BOMB_COUNT });
+	    this.setState({ board: board, moves: 0, startTimer: null, bombsRemaining: BOMB_COUNT, leaders: this.state.leaders });
 	  },
 	  render: function () {
 	    var lost = this.state.board.lost();
@@ -20194,13 +20235,20 @@
 	      displayModal = true;
 	    }
 	
-	    var modal = displayModal ? React.createElement(Modal, { modalText: modalText, restartGame: this.restartGame }) : "";
+	    var modal = displayModal ? React.createElement(Modal, { modalText: modalText,
+	      restartGame: this.restartGame,
+	      won: won,
+	      startTimer: this.state.startTimer,
+	      leaders: this.state.leaders }) : "";
 	
 	    return React.createElement(
 	      'div',
 	      null,
 	      modal,
-	      React.createElement(Board, { board: this.state.board, updateGame: this.updateGame })
+	      React.createElement(Board, { board: this.state.board,
+	        updateGame: this.updateGame,
+	        startTimer: this.state.startTimer,
+	        bombsRemaining: this.state.bombsRemaining })
 	    );
 	  }
 	
@@ -20217,18 +20265,31 @@
 	var React = __webpack_require__(1);
 	var Tile = __webpack_require__(170).Tile;
 	var Heading = __webpack_require__(173).Heading;
+	var Timer = __webpack_require__(175).Timer;
 	
 	var Board = React.createClass({
 	  displayName: 'Board',
 	
+	
 	  render: function () {
 	    var grid = this.props.board.grid;
 	    var that = this;
+	    //if user has taken 1 move, create the timer
+	    var timer = this.props.startTimer ? React.createElement(Timer, { startTimer: this.props.startTimer }) : React.createElement(
+	      'div',
+	      { className: 'clock centerBlock' },
+	      React.createElement(
+	        'p',
+	        null,
+	        '00:00'
+	      )
+	    );
 	
 	    return React.createElement(
 	      'div',
 	      { className: 'container' },
-	      React.createElement(Heading, null),
+	      React.createElement(Heading, { bombsRemaining: this.props.bombsRemaining }),
+	      timer,
 	      React.createElement(
 	        'div',
 	        { className: 'board centerBlock' },
@@ -20361,7 +20422,6 @@
 	      this.flagged = !this.flagged;
 	      return true;
 	    }
-	
 	    return false;
 	  }
 	};
@@ -20421,6 +20481,19 @@
 	      });
 	    });
 	    return won;
+	  },
+	  flagTotal: function () {
+	    var count = 0;
+	
+	    this.grid.forEach(function (row) {
+	      row.forEach(function (tile) {
+	        if (tile.flagged) {
+	          count = count + 1;
+	        }
+	      });
+	    });
+	
+	    return count;
 	  }
 	};
 	
@@ -20434,32 +20507,35 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
+	var Leaderboard = __webpack_require__(174).Leaderboard;
 	
 	var Modal = React.createClass({
-	  displayName: "Modal",
+	  displayName: 'Modal',
 	
 	  handleClick: function () {
 	    this.props.restartGame();
 	  },
 	  render: function () {
+	    var leaderboard = this.props.won ? React.createElement(Leaderboard, { leaders: this.props.leaders }) : "";
 	    return React.createElement(
-	      "div",
+	      'div',
 	      null,
 	      React.createElement(
-	        "div",
-	        { className: "modal centerBlock" },
+	        'div',
+	        { className: 'modal centerBlock' },
 	        React.createElement(
-	          "p",
-	          { className: "modalText" },
+	          'p',
+	          { className: 'modalText' },
 	          this.props.modalText
 	        ),
 	        React.createElement(
-	          "button",
+	          'button',
 	          { onClick: this.handleClick },
-	          "Replay!"
-	        )
+	          'Replay!'
+	        ),
+	        leaderboard
 	      ),
-	      React.createElement("div", { className: "backgroundOverlay" })
+	      React.createElement('div', { className: 'backgroundOverlay' })
 	    );
 	  }
 	});
@@ -20502,6 +20578,20 @@
 	          ),
 	          " tiles to place a flag or unplace an already placed flag."
 	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: "bombsRemaining" },
+	        React.createElement(
+	          "h4",
+	          null,
+	          "Bombs Remaining ",
+	          React.createElement(
+	            "span",
+	            null,
+	            this.props.bombsRemaining
+	          )
+	        )
 	      )
 	    );
 	  }
@@ -20509,6 +20599,112 @@
 	
 	module.exports = {
 	  Heading: Heading
+	};
+
+/***/ },
+/* 174 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var Leaderboard = React.createClass({
+	  displayName: "Leaderboard",
+	
+	
+	  render: function () {
+	    this.props.leaders.sort(function (a, b) {
+	      if (a.time > b.time) {
+	        return 1;
+	      }
+	      if (a.time < b.time) {
+	        return -1;
+	      }
+	      return 0;
+	    });
+	
+	    return React.createElement(
+	      "div",
+	      null,
+	      React.createElement(
+	        "h3",
+	        null,
+	        "CHAMPIONS"
+	      ),
+	      React.createElement(
+	        "ul",
+	        { className: "modalLeaderboard" },
+	        this.props.leaders.map(function (leader, idx) {
+	          return React.createElement(
+	            "li",
+	            { key: idx },
+	            leader.name,
+	            " | ",
+	            leader.time
+	          );
+	        })
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  Leaderboard: Leaderboard
+	};
+
+/***/ },
+/* 175 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var Timer = React.createClass({
+	  displayName: "Timer",
+	
+	  getInitialState: function () {
+	    var startTime = this.props.startTimer;
+	    return { elapsed: 0, time: startTime };
+	  },
+	  componentDidMount: function () {
+	    var that = this;
+	    if (this.props.startTimer) {
+	      this.timeInterval = setInterval(that.updateElapsed, 1000);
+	    }
+	  },
+	  componentWillUnmount: function () {
+	    clearInterval(this.timeInterval);
+	  },
+	  updateElapsed: function () {
+	    console.log(this.props.startTimer);
+	    this.setState({ elapsed: new Date() - this.state.time });
+	  },
+	  stringifyClock: function (time) {
+	    var seconds = parseInt(time % 60);
+	    var minutes = parseInt(time / 60);
+	
+	    var secondsString = seconds < 10 ? "0" + seconds : "" + seconds;
+	    var minutesString = minutes < 10 ? "0" + minutes : "" + minutes;
+	
+	    var clockString = minutesString + ":" + secondsString;
+	
+	    return clockString;
+	  },
+	  render: function () {
+	    var clockString = this.stringifyClock(this.state.elapsed / 1000);
+	
+	    return React.createElement(
+	      "div",
+	      { className: "clock centerBlock" },
+	      React.createElement(
+	        "p",
+	        null,
+	        clockString
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  Timer: Timer
 	};
 
 /***/ }

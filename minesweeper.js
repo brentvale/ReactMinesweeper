@@ -51,7 +51,6 @@ Tile.prototype = {
       this.flagged = !this.flagged;
       return true;
     }
-
     return false;
   }
 };
@@ -114,6 +113,19 @@ Board.prototype = {
       });
     });
     return won;
+  },
+  flagTotal: function(){
+    var count = 0;
+
+    this.grid.forEach(function(row) {
+      row.forEach(function(tile) {
+        if(tile.flagged){
+          count = count + 1;
+        }
+      });
+    });
+
+    return count;
   }
 };
 
