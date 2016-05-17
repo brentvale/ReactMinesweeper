@@ -20558,7 +20558,7 @@
 	    return React.createElement(
 	      "div",
 	      null,
-	      React.createElement("img", { src: "../images/minesweeper_text.png", alt: "Minesweeper", className: "centerBlock" }),
+	      React.createElement("img", { src: "./images/minesweeper_text.png", alt: "Minesweeper", className: "centerBlock" }),
 	      React.createElement(
 	        "div",
 	        { className: "headingText centerBlock" },
