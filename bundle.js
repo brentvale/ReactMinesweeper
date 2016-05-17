@@ -20264,7 +20264,7 @@
 
 	var React = __webpack_require__(1);
 	var Tile = __webpack_require__(170).Tile;
-	var Heading = __webpack_require__(173).Heading;
+	var Heading = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./heading.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).Heading;
 	var Timer = __webpack_require__(175).Timer;
 	
 	var Board = React.createClass({
@@ -20545,63 +20545,7 @@
 	};
 
 /***/ },
-/* 173 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(1);
-	
-	var Heading = React.createClass({
-	  displayName: "Heading",
-	
-	
-	  render: function () {
-	    return React.createElement(
-	      "div",
-	      null,
-	      React.createElement("img", { src: "../images/minesweeper_text.png", alt: "Minesweeper", className: "centerBlock" }),
-	      React.createElement(
-	        "div",
-	        { className: "headingText centerBlock" },
-	        React.createElement(
-	          "p",
-	          { className: "instructions" },
-	          React.createElement(
-	            "span",
-	            null,
-	            "Click"
-	          ),
-	          " on tiles to turn them over.  ",
-	          React.createElement(
-	            "span",
-	            null,
-	            "Alt + Click"
-	          ),
-	          " tiles to place a flag or unplace an already placed flag."
-	        )
-	      ),
-	      React.createElement(
-	        "div",
-	        { className: "bombsRemaining" },
-	        React.createElement(
-	          "h4",
-	          null,
-	          "Bombs Remaining ",
-	          React.createElement(
-	            "span",
-	            null,
-	            this.props.bombsRemaining
-	          )
-	        )
-	      )
-	    );
-	  }
-	});
-	
-	module.exports = {
-	  Heading: Heading
-	};
-
-/***/ },
+/* 173 */,
 /* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -20674,7 +20618,6 @@
 	    clearInterval(this.timeInterval);
 	  },
 	  updateElapsed: function () {
-	    console.log(this.props.startTimer);
 	    this.setState({ elapsed: new Date() - this.state.time });
 	  },
 	  stringifyClock: function (time) {

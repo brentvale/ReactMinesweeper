@@ -17,7 +17,6 @@ var Modal = React.createClass({
         <div className="backgroundOverlay">
         </div>
       </div>
-      
     )
   }
 });

@@ -161,3 +161,66 @@ p.modalText{
   color: black;
   background-color:#787878;
 }
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5){
+  button{
+    height:40px;
+    width: 140px;
+    margin-bottom:70px;
+  }
+  .board{
+    width:100%;
+  }
+  p{
+    font-size:20px;
+  }
+  .bombsRemaining{
+    line-height:50px;
+    font-size: 30px;
+  }
+  .bombsRemaining span{
+    height:50px;
+    width: 50px;
+  }
+  .headingText{
+    width:65%;
+    height:120px;
+  }
+  .instructions{
+    font-size:30px;
+    margin-bottom: 50px;
+  }
+  p.instructions span{
+    font-size:30px;
+  }
+  .clock{
+    width:200px;
+    height:80px;
+  }
+  .clock p{
+    font-size:30px;
+    line-height:80px;
+  }
+  .container img{
+    height:100px;
+    width: 400px;
+  }
+  .row{
+    height:80px;
+    width:900px;
+  }
+  /* MODAL */
+  .modal{
+    width:400px;
+    border-radius: 10px;
+  }
+  p.modalText{
+    margin-top:60px;
+    margin-bottom:50px;
+    font-size: 30px;
+  }
+  /* TILES */
+  .tile{
+    height:80px;
+    width:80px;
+  }
+}
