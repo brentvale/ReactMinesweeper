@@ -1,10 +1,134 @@
-div.tile{
-  height:40px;
-  width:40px;
-  display:inline-block;
-  background-color:blue;
-  color: black;
-  margin:5px;
+button{
+  height:20px;
+  width: 70px;
+  border-radius: 3px;
+}
+.board{
+  width:80%;
+}
+.headingText{
+  width:40%;
+}
+.instructions{
   text-align:center;
-  padding-top:10px;
+  width: 100%;
+  font-size:16px;
+  margin-bottom: 50px;
+}
+p.instructions span{
+  font-weight:bold;
+  font-size:16px;
+}
+.backgroundOverlay{
+  position: absolute;
+  top: 0%;
+  bottom: 0%;
+  left: 0%;
+  right: 0%;
+  background: rgba(0, 0, 0, .3);
+  z-index: 9;
+}
+.container img{
+  height:50px;
+  width: 200px;
+  display:block;
+  margin-bottom:50px;
+  margin-top:50px;
+}
+.centerBlock{
+  left:0;
+  right:0;
+  margin-left:auto;
+  margin-right:auto;
+}
+.modal{
+  z-index:10;
+  height: 200px;
+  width:250px;
+  border-radius: 5px;
+  border:1px solid black;
+  position:absolute;
+  background-color:white;
+  text-align:center;
+}
+p.modalText{
+  margin-top:50px;
+  margin-bottom:30px;
+  font-size: 16px;
+}
+.tile{
+  position:relative;
+  display:inline-block;
+  height:30px;
+  width:30px;
+  color: black;
+  text-align:center;
+  cursor: hand;
+  cursor: pointer;
+}
+p{
+  font-size:10px;
+  display:inline-block;
+  margin: 0px 0px;
+}
+.row{
+  display:block;
+  height:30px;
+  width:370px;
+}
+.bombed{
+  border-style:outset;
+  background-color:red;
+}
+.bombed p{
+  
+}
+.flagged{
+  border-style:outset;
+}
+.unexplored{
+  border-style:outset;
+  background-color:gray;
+}
+.explored{
+  border-style:inset;
+}
+.color0 {
+  color: gray;
+  background-color:#e5e5e5;
+}
+
+.color1 {
+  color: blue;
+  background-color:#c8c9ff;
+}
+
+.color2 {
+  color: green;
+  background-color:#c8ffcf;
+}
+
+.color3 {
+  color: red;
+  background-color:#ffc4c4;
+}
+
+.color4 {
+  color: #340f65;
+  background-color:#c79dff;
+}
+
+.color5 {
+  color: #6F1C25;
+  background-color:#dd9098;
+}
+
+.color6 {
+  color: #3bb2af;
+  background-color:#d7fffe;
+}
+
+.color7 {
+  color: black;
+  background-color:#787878;
 }

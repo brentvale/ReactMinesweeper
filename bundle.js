@@ -20158,17 +20158,50 @@
 
 	var React = __webpack_require__(1);
 	var Board = __webpack_require__(169).Board;
-	var Minesweeper = __webpack_require__(170);
+	var Minesweeper = __webpack_require__(171);
+	var Modal = __webpack_require__(172).Modal;
 	
 	var Game = React.createClass({
 	  displayName: 'Game',
 	
 	  getInitialState: function () {
-	    return { board: new Minesweeper.Board({ gridSize: 10, numBombs: 10 }) };
+	    var board = new Minesweeper.Board({ gridSize: 10, numBombs: 10 });
+	    return { board: board };
 	  },
-	  updateGame: function () {},
+	  updateGame: function (tile, flagged) {
+	    if (flagged) {
+	      tile.toggleFlag();
+	    } else {
+	      tile.explore();
+	    }
+	    this.setState({ board: this.state.board });
+	  },
+	  restartGame: function () {
+	    var board = new Minesweeper.Board({ gridSize: 10, numBombs: 10 });
+	    this.setState({ board: board });
+	  },
 	  render: function () {
-	    return React.createElement(Board, { board: this.state.board, updateGame: this.updateGame });
+	    var lost = this.state.board.lost();
+	    var won = this.state.board.won();
+	    var displayModal = false;
+	
+	    if (lost) {
+	      var modalText = "Sorry, you lost.  Click to start a new game.";
+	      displayModal = true;
+	    }
+	    if (won) {
+	      var modalText = "CONGRATULATIONS, you won!!!.  Click to start a new game.";
+	      displayModal = true;
+	    }
+	
+	    var modal = displayModal ? React.createElement(Modal, { modalText: modalText, restartGame: this.restartGame }) : "";
+	
+	    return React.createElement(
+	      'div',
+	      null,
+	      modal,
+	      React.createElement(Board, { board: this.state.board, updateGame: this.updateGame })
+	    );
 	  }
 	
 	});
@@ -20182,7 +20215,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var Tile = __webpack_require__(171).Tile;
+	var Tile = __webpack_require__(170).Tile;
+	var Heading = __webpack_require__(173).Heading;
 	
 	var Board = React.createClass({
 	  displayName: 'Board',
@@ -20193,16 +20227,23 @@
 	
 	    return React.createElement(
 	      'div',
-	      null,
-	      grid.map(function (row, idx) {
-	        return React.createElement(
-	          'div',
-	          { key: idx },
-	          row.map(function (tile, jdx) {
-	            return React.createElement(Tile, { key: idx * that.props.board.gridSize + jdx, tile: tile, updateGame: that.props.updateGame });
-	          })
-	        );
-	      })
+	      { className: 'container' },
+	      React.createElement(Heading, null),
+	      React.createElement(
+	        'div',
+	        { className: 'board centerBlock' },
+	        grid.map(function (row, idx) {
+	          return React.createElement(
+	            'div',
+	            { className: 'row centerBlock', key: idx },
+	            row.map(function (tile, jdx) {
+	              return React.createElement(Tile, { key: idx * that.props.board.gridSize + jdx,
+	                tile: tile,
+	                updateGame: that.props.updateGame });
+	            })
+	          );
+	        })
+	      )
 	    );
 	  }
 	});
@@ -20213,6 +20254,59 @@
 
 /***/ },
 /* 170 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var Tile = React.createClass({
+	  displayName: 'Tile',
+	
+	  handleClick: function (e) {
+	    var flagged = e.altKey ? true : false;
+	    this.props.updateGame(this.props.tile, flagged);
+	  },
+	  render: function () {
+	    var tile = this.props.tile;
+	    var klass, text, count, colorClass;
+	
+	    if (tile.explored) {
+	      if (tile.bombed) {
+	        klass = 'bombed';
+	        text = "\u2622";
+	      } else {
+	        klass = 'explored';
+	        count = tile.adjacentBombCount();
+	        text = count > 0 ? count + " " : "  ";
+	        //colors for number of neighbors
+	        klass = klass + " color" + count;
+	      }
+	    } else if (tile.flagged) {
+	      klass = 'flagged';
+	      text = "\u2691";
+	    } else {
+	      klass = 'unexplored';
+	    }
+	
+	    klass = 'tile ' + klass + ' centerBlock';
+	
+	    return React.createElement(
+	      'div',
+	      { className: klass, onClick: this.handleClick },
+	      React.createElement(
+	        'p',
+	        null,
+	        text
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  Tile: Tile
+	};
+
+/***/ },
+/* 171 */
 /***/ function(module, exports) {
 
 	var Tile = function (board, pos) {
@@ -20239,7 +20333,6 @@
 	    if (this.flagged || this.explored) {
 	      return this;
 	    }
-	
 	    this.explored = true;
 	    if (!this.bombed && this.adjacentBombCount() === 0) {
 	      this.neighbors().forEach(function (tile) {
@@ -20337,40 +20430,85 @@
 	};
 
 /***/ },
-/* 171 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
 	
-	var Tile = React.createClass({
-	  displayName: 'Tile',
+	var Modal = React.createClass({
+	  displayName: "Modal",
 	
+	  handleClick: function () {
+	    this.props.restartGame();
+	  },
 	  render: function () {
-	
-	    var klass, text, count;
-	    if (tile.explored) {
-	      if (tile.bombed) {
-	        klass = 'bombed';
-	        text = "\u2622";
-	      } else {
-	        klass = 'explored';
-	        count = tile.adjacentBombCount();
-	        text = count > 0 ? count + " " : "";
-	      }
-	    } else if (tile.flagged) {
-	      klass = 'flagged';
-	      text = "\u2691";
-	    } else {
-	      klass = 'unexplored';
-	    }
-	    klass = 'tile ' + klass;
-	
-	    return React.createElement('div', { className: klass });
+	    return React.createElement(
+	      "div",
+	      null,
+	      React.createElement(
+	        "div",
+	        { className: "modal centerBlock" },
+	        React.createElement(
+	          "p",
+	          { className: "modalText" },
+	          this.props.modalText
+	        ),
+	        React.createElement(
+	          "button",
+	          { onClick: this.handleClick },
+	          "Replay!"
+	        )
+	      ),
+	      React.createElement("div", { className: "backgroundOverlay" })
+	    );
 	  }
 	});
 	
 	module.exports = {
-	  Tile: Tile
+	  Modal: Modal
+	};
+
+/***/ },
+/* 173 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var Heading = React.createClass({
+	  displayName: "Heading",
+	
+	
+	  render: function () {
+	    return React.createElement(
+	      "div",
+	      null,
+	      React.createElement("img", { src: "../images/minesweeper_text.png", alt: "Minesweeper", className: "centerBlock" }),
+	      React.createElement(
+	        "div",
+	        { className: "headingText centerBlock" },
+	        React.createElement(
+	          "p",
+	          { className: "instructions" },
+	          React.createElement(
+	            "span",
+	            null,
+	            "Click"
+	          ),
+	          " on tiles to turn them over.  ",
+	          React.createElement(
+	            "span",
+	            null,
+	            "Alt + Click"
+	          ),
+	          " tiles to place a flag or unplace an already placed flag."
+	        )
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  Heading: Heading
 	};
 
 /***/ }

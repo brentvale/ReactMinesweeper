@@ -23,7 +23,6 @@ Tile.prototype = {
     if (this.flagged || this.explored) { 
       return this;
     }
-
     this.explored = true;
     if (!this.bombed && this.adjacentBombCount() === 0) {
       this.neighbors().forEach(function(tile) {
