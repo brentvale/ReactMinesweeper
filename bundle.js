@@ -20674,7 +20674,6 @@
 	    clearInterval(this.timeInterval);
 	  },
 	  updateElapsed: function () {
-	    console.log(this.props.startTimer);
 	    this.setState({ elapsed: new Date() - this.state.time });
 	  },
 	  stringifyClock: function (time) {
