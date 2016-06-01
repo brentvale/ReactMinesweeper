@@ -20158,8 +20158,8 @@
 
 	var React = __webpack_require__(1);
 	var Board = __webpack_require__(169).Board;
-	var Minesweeper = __webpack_require__(171);
-	var Modal = __webpack_require__(172).Modal;
+	var Minesweeper = __webpack_require__(173);
+	var Modal = __webpack_require__(174).Modal;
 	
 	var BOMB_COUNT = 10;
 	
@@ -20264,8 +20264,8 @@
 
 	var React = __webpack_require__(1);
 	var Tile = __webpack_require__(170).Tile;
-	var Heading = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./heading.jsx\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).Heading;
-	var Timer = __webpack_require__(175).Timer;
+	var Heading = __webpack_require__(171).Heading;
+	var Timer = __webpack_require__(172).Timer;
 	
 	var Board = React.createClass({
 	  displayName: 'Board',
@@ -20368,6 +20368,118 @@
 
 /***/ },
 /* 171 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var Heading = React.createClass({
+	  displayName: "Heading",
+	
+	
+	  render: function () {
+	    return React.createElement(
+	      "div",
+	      null,
+	      React.createElement("img", { src: "./images/minesweeper_text.png", alt: "Minesweeper", className: "centerBlock" }),
+	      React.createElement(
+	        "div",
+	        { className: "headingText centerBlock" },
+	        React.createElement(
+	          "p",
+	          { className: "instructions" },
+	          React.createElement(
+	            "span",
+	            null,
+	            "Click"
+	          ),
+	          " on tiles to turn them over.  ",
+	          React.createElement(
+	            "span",
+	            null,
+	            "Alt + Click"
+	          ),
+	          " tiles to place a flag or unplace an already placed flag."
+	        )
+	      ),
+	      React.createElement(
+	        "div",
+	        { className: "bombsRemaining" },
+	        React.createElement(
+	          "h4",
+	          null,
+	          "Bombs Remaining ",
+	          React.createElement(
+	            "span",
+	            null,
+	            this.props.bombsRemaining
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  Heading: Heading
+	};
+
+/***/ },
+/* 172 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	
+	var Timer = React.createClass({
+	  displayName: "Timer",
+	
+	  getInitialState: function () {
+	    var startTime = this.props.startTimer;
+	    return { elapsed: 0, time: startTime };
+	  },
+	  componentDidMount: function () {
+	    var that = this;
+	    if (this.props.startTimer) {
+	      this.timeInterval = setInterval(that.updateElapsed, 1000);
+	    }
+	  },
+	  componentWillUnmount: function () {
+	    clearInterval(this.timeInterval);
+	  },
+	  updateElapsed: function () {
+	    this.setState({ elapsed: new Date() - this.state.time });
+	  },
+	  stringifyClock: function (time) {
+	    var seconds = parseInt(time % 60);
+	    var minutes = parseInt(time / 60);
+	
+	    var secondsString = seconds < 10 ? "0" + seconds : "" + seconds;
+	    var minutesString = minutes < 10 ? "0" + minutes : "" + minutes;
+	
+	    var clockString = minutesString + ":" + secondsString;
+	
+	    return clockString;
+	  },
+	  render: function () {
+	    var clockString = this.stringifyClock(this.state.elapsed / 1000);
+	
+	    return React.createElement(
+	      "div",
+	      { className: "clock centerBlock" },
+	      React.createElement(
+	        "p",
+	        null,
+	        clockString
+	      )
+	    );
+	  }
+	});
+	
+	module.exports = {
+	  Timer: Timer
+	};
+
+/***/ },
+/* 173 */
 /***/ function(module, exports) {
 
 	var Tile = function (board, pos) {
@@ -20503,11 +20615,11 @@
 	};
 
 /***/ },
-/* 172 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var Leaderboard = __webpack_require__(174).Leaderboard;
+	var Leaderboard = __webpack_require__(175).Leaderboard;
 	
 	var Modal = React.createClass({
 	  displayName: 'Modal',
@@ -20545,8 +20657,7 @@
 	};
 
 /***/ },
-/* 173 */,
-/* 174 */
+/* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
@@ -20593,61 +20704,6 @@
 	
 	module.exports = {
 	  Leaderboard: Leaderboard
-	};
-
-/***/ },
-/* 175 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(1);
-	
-	var Timer = React.createClass({
-	  displayName: "Timer",
-	
-	  getInitialState: function () {
-	    var startTime = this.props.startTimer;
-	    return { elapsed: 0, time: startTime };
-	  },
-	  componentDidMount: function () {
-	    var that = this;
-	    if (this.props.startTimer) {
-	      this.timeInterval = setInterval(that.updateElapsed, 1000);
-	    }
-	  },
-	  componentWillUnmount: function () {
-	    clearInterval(this.timeInterval);
-	  },
-	  updateElapsed: function () {
-	    this.setState({ elapsed: new Date() - this.state.time });
-	  },
-	  stringifyClock: function (time) {
-	    var seconds = parseInt(time % 60);
-	    var minutes = parseInt(time / 60);
-	
-	    var secondsString = seconds < 10 ? "0" + seconds : "" + seconds;
-	    var minutesString = minutes < 10 ? "0" + minutes : "" + minutes;
-	
-	    var clockString = minutesString + ":" + secondsString;
-	
-	    return clockString;
-	  },
-	  render: function () {
-	    var clockString = this.stringifyClock(this.state.elapsed / 1000);
-	
-	    return React.createElement(
-	      "div",
-	      { className: "clock centerBlock" },
-	      React.createElement(
-	        "p",
-	        null,
-	        clockString
-	      )
-	    );
-	  }
-	});
-	
-	module.exports = {
-	  Timer: Timer
 	};
 
 /***/ }
